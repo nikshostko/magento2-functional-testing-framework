@@ -517,11 +517,11 @@ class MagentoWebDriver extends WebDriver
      */
     public function magentoCLI($command, $arguments = null)
     {
-        try {
-            return $this->shellExecMagentoCLI($command, $arguments);
-        } catch (\Exception $exception) {
+//        try {
+//            return $this->shellExecMagentoCLI($command, $arguments);
+//        } catch (\Exception $exception) {
             return $this->curlExecMagentoCLI($command, $arguments);
-        }
+ //       }
     }
 
     /**
