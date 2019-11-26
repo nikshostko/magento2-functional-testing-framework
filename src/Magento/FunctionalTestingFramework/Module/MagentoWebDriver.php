@@ -842,13 +842,17 @@ class MagentoWebDriver extends WebDriver
     private function shellExecMagentoCLI($command, $arguments): string
     {
         $php = PHP_BINDIR ? PHP_BINDIR . DIRECTORY_SEPARATOR. 'php' : 'php';
+        echo ($php);
         $binMagento = realpath(MAGENTO_BP . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'magento');
+        echo($binMagento);
         $command = $php . ' -f ' . $binMagento . ' ' . $command . ' ' . $arguments;
-        $process = new Process(escapeshellcmd($command), MAGENTO_BP);
+        $process = new Process($command);
         $process->setIdleTimeout(60);
         $process->setTimeout(0);
         $exitCode = $process->run();
+        $process->stop();
         if ($exitCode !== 0) {
+            echo($process->getErrorOutput());
             throw new \RuntimeException($process->getErrorOutput());
         }
 
