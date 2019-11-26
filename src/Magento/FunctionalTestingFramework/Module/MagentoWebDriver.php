@@ -517,9 +517,13 @@ class MagentoWebDriver extends WebDriver
      */
     public function magentoCLI($command, $arguments = null)
     {
-        try {
-            return $this->shellExecMagentoCLI($command, $arguments);
-        } catch (\Exception $exception) {
+        $php = PHP_BINDIR ? PHP_BINDIR . DIRECTORY_SEPARATOR. 'php' : 'php';
+        $binMagento = realpath(MAGENTO_BP . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'magento');
+        $fullCommand = $php . ' -f ' . $binMagento . ' ' . $command . ' ' . $arguments;
+        exec($binMagento . ' list', $commandList);
+        if (in_array(trim($command), $commandList)){
+            return $this->shellExecMagentoCLI($fullCommand);
+        } else {
             return $this->curlExecMagentoCLI($command, $arguments);
         }
     }
@@ -839,20 +843,16 @@ class MagentoWebDriver extends WebDriver
      * @return string
      * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
      */
-    private function shellExecMagentoCLI($command, $arguments): string
+    private function shellExecMagentoCLI($fullCommand): string
     {
-        $php = PHP_BINDIR ? PHP_BINDIR . DIRECTORY_SEPARATOR. 'php' : 'php';
-        echo ($php);
-        $binMagento = realpath(MAGENTO_BP . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'magento');
-        echo($binMagento);
-        $command = $php . ' -f ' . $binMagento . ' ' . $command . ' ' . $arguments;
-        $process = new Process($command);
+
+        $process = new Process($fullCommand);
+        echo($fullCommand);
+        $process->setWorkingDirectory(MAGENTO_BP);
         $process->setIdleTimeout(60);
-        $process->setTimeout(0);
+        $process->setTimeout(60);
         $exitCode = $process->run();
-        $process->stop();
         if ($exitCode !== 0) {
-            echo($process->getErrorOutput());
             throw new \RuntimeException($process->getErrorOutput());
         }
 
@@ -894,4 +894,20 @@ class MagentoWebDriver extends WebDriver
 
         return $response;
     }
+
+    /**
+     * Checks magento list of CLI commands for given $command. Does not check command parameters, just base command.
+     * @param string $magentoBinary
+     * @param string $command
+     * @return bool
+     */
+    function validateCommand($magentoBinary, $command)
+    {
+        exec($magentoBinary . ' list', $commandList);
+        // Trim list of commands after first whitespace
+        $commandList = array_map("trimAfterWhitespace", $commandList);
+        return in_array(trimAfterWhitespace($command), $commandList);
+    }
+
+
 }
