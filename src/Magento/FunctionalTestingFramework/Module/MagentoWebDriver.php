@@ -521,6 +521,7 @@ class MagentoWebDriver extends WebDriver
         $binMagento = realpath(MAGENTO_BP . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'magento');
         $fullCommand = $php . ' -f ' . $binMagento . ' ' . $command . ' ' . $arguments;
         exec($binMagento . ' list', $commandList);
+        var_dump(exec(phpinfo()));
         $commandList = array_map(function ($command) { return strtok($command, ' ');}, $commandList);
         if (in_array(trim($command), $commandList)){
             return $this->shellExecMagentoCLI($fullCommand);
@@ -846,22 +847,20 @@ class MagentoWebDriver extends WebDriver
      */
     private function shellExecMagentoCLI($fullCommand): string
     {
-//        if (method_exists('Symfony\Component\Process\Process', 'fromShellCommandline')) {
-//            $process = Process::fromShellCommandline($fullCommand);
-//        } else {
-//            $process = new Process($fullCommand);
-//        }
-        exec($fullCommand, $output);
-//        $process->setWorkingDirectory(MAGENTO_BP);
-//        $process->setIdleTimeout(60);
-//        $process->setTimeout(60);
-//        $exitCode = $process->run();
-//        if ($exitCode !== 0) {
-//            throw new \RuntimeException($process->getErrorOutput());
-//        }
-
-//        return $process->getOutput();
-        return $output;
+        if (method_exists('Symfony\Component\Process\Process', 'fromShellCommandline')) {
+            $process = Process::fromShellCommandline($fullCommand);
+        } else {
+            $process = new Process($fullCommand);
+        }
+        $process->setWorkingDirectory(MAGENTO_BP);
+        $process->setIdleTimeout(60);
+        $process->setTimeout(0);
+        $exitCode = $process->run();
+        if ($exitCode !== 0) {
+            throw new \RuntimeException($process->getErrorOutput());
+        }
+        var_dump("magentoCLIShell: " . $process->getStatus());
+        return $process->getOutput();
     }
 
     /**
