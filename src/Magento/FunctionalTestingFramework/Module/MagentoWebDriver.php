@@ -521,6 +521,7 @@ class MagentoWebDriver extends WebDriver
         $binMagento = realpath(MAGENTO_BP . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'magento');
         $fullCommand = $php . ' -f ' . $binMagento . ' ' . $command . ' ' . $arguments;
         exec($binMagento . ' list', $commandList);
+        $commandList = array_map(function ($command) { return strtok($command, ' ');}, $commandList);
         if (in_array(trim($command), $commandList)){
             return $this->shellExecMagentoCLI($fullCommand);
         } else {
