@@ -846,18 +846,22 @@ class MagentoWebDriver extends WebDriver
      */
     private function shellExecMagentoCLI($fullCommand): string
     {
+//        if (method_exists('Symfony\Component\Process\Process', 'fromShellCommandline')) {
+//            $process = Process::fromShellCommandline($fullCommand);
+//        } else {
+//            $process = new Process($fullCommand);
+//        }
+        exec($fullCommand, $output);
+//        $process->setWorkingDirectory(MAGENTO_BP);
+//        $process->setIdleTimeout(60);
+//        $process->setTimeout(60);
+//        $exitCode = $process->run();
+//        if ($exitCode !== 0) {
+//            throw new \RuntimeException($process->getErrorOutput());
+//        }
 
-        $process = new Process($fullCommand);
-        echo($fullCommand);
-        $process->setWorkingDirectory(MAGENTO_BP);
-        $process->setIdleTimeout(60);
-        $process->setTimeout(60);
-        $exitCode = $process->run();
-        if ($exitCode !== 0) {
-            throw new \RuntimeException($process->getErrorOutput());
-        }
-
-        return $process->getOutput();
+//        return $process->getOutput();
+        return $output;
     }
 
     /**
