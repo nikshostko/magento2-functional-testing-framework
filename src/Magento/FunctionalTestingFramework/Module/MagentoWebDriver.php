@@ -523,8 +523,7 @@ class MagentoWebDriver extends WebDriver
     {
         $magentoBinary = realpath(MAGENTO_BP . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'magento');
         $valid = $this->validateCommand($magentoBinary, $command);
-        if ($valid && strpos($command, 'cron') !== false
-            && strpos($command, 'indexer') !== false){
+        if ($valid && strpos($command, 'cron') === false){
             return $this->shellExecMagentoCLI($magentoBinary, $command, $timeout, $arguments);
         } else {
             return $this->curlExecMagentoCLI($command, $timeout, $arguments);
@@ -855,7 +854,7 @@ class MagentoWebDriver extends WebDriver
         $fullCommand = $php . ' -f ' . $magentoBinary . ' ' . $command . ' ' . $arguments;
         $process = new Process(escapeshellcmd($fullCommand), MAGENTO_BP);
         $process->setIdleTimeout($timeout);
-        $process->setTimeout(60);
+        $process->setTimeout(0);
         try {
             $process->run();
             $output = $process->getOutput();
