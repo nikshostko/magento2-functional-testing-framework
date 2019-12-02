@@ -523,7 +523,7 @@ class MagentoWebDriver extends WebDriver
     {
         $magentoBinary = realpath(MAGENTO_BP . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'magento');
         $valid = $this->validateCommand($magentoBinary, $command);
-        if ($valid) {
+        if ($valid && strpos($command, "cron") !== false) {
             return $this->shellExecMagentoCLI($magentoBinary, $command, $timeout, $arguments);
         } else {
             return $this->curlExecMagentoCLI($command, $timeout, $arguments);
@@ -870,6 +870,7 @@ class MagentoWebDriver extends WebDriver
 
         } catch (ProcessTimedOutException $exception) {
             $output = "CLI command timed out, no output available.";
+
         }
 
         if ($this->checkForFilePath($output)) {
