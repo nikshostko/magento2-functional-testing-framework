@@ -855,7 +855,7 @@ class MagentoWebDriver extends WebDriver
         $php = PHP_BINDIR ? PHP_BINDIR . DIRECTORY_SEPARATOR. 'php' : 'php';
         $fullCommand = $php . ' -f ' . $magentoBinary . ' ' . $command . ' ' . $arguments;
         $process = new Process(escapeshellcmd($fullCommand), MAGENTO_BP);
-        $process->setIdleTimeout(120);
+        $process->setIdleTimeout($timeout);
         $process->setTimeout(60);
         try {
             $process->run();
