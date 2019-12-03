@@ -859,8 +859,6 @@ class MagentoWebDriver extends WebDriver
             if ($isCron) {
                 $process = Process::fromShellCommandline(escapeshellcmd($fullCommand) . ' &', MAGENTO_BP);
                 $process->disableOutput();
-                $process->setIdleTimeout($timeout);
-                $process->setTimeout(0);
                 $process->start();
             } else {
                 $process = Process::fromShellCommandline(escapeshellcmd($fullCommand), MAGENTO_BP);
