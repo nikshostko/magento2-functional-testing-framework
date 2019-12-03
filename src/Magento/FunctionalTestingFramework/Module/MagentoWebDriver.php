@@ -854,14 +854,16 @@ class MagentoWebDriver extends WebDriver
     {
         $php = PHP_BINDIR ? PHP_BINDIR . DIRECTORY_SEPARATOR. 'php' : 'php';
         $fullCommand = $php . ' -f ' . $magentoBinary . ' ' . $command . ' ' . $arguments;
-        if ($command === self::COMMAND_CRON_RUN) {
-            $process = Process::fromShellCommandline(escapeshellcmd($fullCommand) . ' &', MAGENTO_BP);
-            $process->disableOutput();
-        } else {
-            $process = Process::fromShellCommandline(escapeshellcmd($fullCommand), MAGENTO_BP);
-        }
+        $isCron = ($command === self::COMMAND_CRON_RUN) ? true : false;
         try {
-            $process->run();
+            if ($isCron) {
+                $process = Process::fromShellCommandline(escapeshellcmd($fullCommand) . ' &', MAGENTO_BP);
+                $process->disableOutput();
+                $process->start();
+            } else {
+                $process = Process::fromShellCommandline(escapeshellcmd($fullCommand), MAGENTO_BP);
+                $process->run();
+            }
             if(!$process->isOutputDisabled()) {
                 $output = $process->getOutput();
             }
@@ -886,7 +888,7 @@ class MagentoWebDriver extends WebDriver
 
         $exitCode = $process->getExitCode();
 
-        if ($exitCode !== 0) {
+        if ($exitCode !== 0 && !$isCron) {
             throw new \RuntimeException($process->getErrorOutput());
         }
         return $output;
