@@ -854,20 +854,25 @@ class MagentoWebDriver extends WebDriver
     {
         $php = PHP_BINDIR ? PHP_BINDIR . DIRECTORY_SEPARATOR. 'php' : 'php';
         $fullCommand = $php . ' -f ' . $magentoBinary . ' ' . $command . ' ' . $arguments;
-        $process = Process::fromShellCommandline(escapeshellcmd($fullCommand), MAGENTO_BP);
-        $process->setIdleTimeout($timeout);
-        $process->setTimeout(0);
+        if ($command === self::COMMAND_CRON_RUN) {
+            $process = Process::fromShellCommandline(escapeshellcmd($fullCommand) . ' &', MAGENTO_BP);
+            $process->disableOutput();
+        } else {
+            $process = Process::fromShellCommandline(escapeshellcmd($fullCommand), MAGENTO_BP);
+        }
         try {
             $process->run();
-           // if (strpos($command, self::COMMAND_CRON_RUN) === false) {
+            if(!$process->isOutputDisabled()) {
                 $output = $process->getOutput();
-                if (!$process->isSuccessful()) {
+            }
+            if (!$process->isSuccessful()) {
+                if(!$process->isOutputDisabled()) {
                     $failureOutput = $process->getErrorOutput();
-                    if (!empty($failureOutput)) {
-                        $output = $failureOutput;
-                    }
                 }
-          //  }
+                if (!empty($failureOutput)) {
+                    $output = $failureOutput;
+                }
+            }
             if (empty($output)) {
                 $output = "CLI did not return output.";
             }
