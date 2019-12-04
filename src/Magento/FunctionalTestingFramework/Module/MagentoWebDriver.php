@@ -854,25 +854,14 @@ class MagentoWebDriver extends WebDriver
     {
         $php = PHP_BINDIR ? PHP_BINDIR . DIRECTORY_SEPARATOR. 'php' : 'php';
         $fullCommand = $php . ' -f ' . $magentoBinary . ' ' . $command . ' ' . $arguments;
-        $isCron = ($command === self::COMMAND_CRON_RUN) ? true : false;
+        $process = new Process(escapeshellcmd($fullCommand), MAGENTO_BP);
+        $process->setIdleTimeout($timeout);
+        $process->setTimeout(0);
         try {
-            if ($isCron) {
-                $process = Process::fromShellCommandline(escapeshellcmd($fullCommand) . ' &', MAGENTO_BP);
-                $process->disableOutput();
-                $process->start();
-            } else {
-                $process = Process::fromShellCommandline(escapeshellcmd($fullCommand), MAGENTO_BP);
-                $process->setIdleTimeout($timeout);
-                $process->setTimeout(0);
-                $process->run();
-            }
-            if(!$process->isOutputDisabled()) {
-                $output = $process->getOutput();
-            }
+            $process->run();
+            $output = $process->getOutput();
             if (!$process->isSuccessful()) {
-                if(!$process->isOutputDisabled()) {
-                    $failureOutput = $process->getErrorOutput();
-                }
+                $failureOutput = $process->getErrorOutput();
                 if (!empty($failureOutput)) {
                     $output = $failureOutput;
                 }
@@ -890,7 +879,7 @@ class MagentoWebDriver extends WebDriver
 
         $exitCode = $process->getExitCode();
 
-        if ($exitCode !== 0 && !$isCron) {
+        if ($exitCode !== 0) {
             throw new \RuntimeException($process->getErrorOutput());
         }
         return $output;
