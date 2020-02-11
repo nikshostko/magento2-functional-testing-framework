@@ -71,7 +71,7 @@ class SectionObjectHandler implements ObjectHandlerInterface
                     $elementType = $elementData[SectionObjectHandler::TYPE] ?? null;
                     $elementSelector = $elementData[SectionObjectHandler::SELECTOR] ?? null;
                     $elementLocatorFunc = $elementData[SectionObjectHandler::LOCATOR_FUNCTION] ?? null;
-                    $elementTimeout = $elementData[SectionObjectHandler::TIMEOUT] ?? null;
+                    $elementTimeout = 120;
                     $elementParameterized = $elementData[SectionObjectHandler::PARAMETERIZED] ?? false;
 
                     $elements[$elementName] = new ElementObject(
