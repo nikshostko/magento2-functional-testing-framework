@@ -32,6 +32,8 @@ class TestContextExtension extends BaseExtension
      */
     public static $events;
 
+    public $currentTest;
+
     /**
      * Initialize local vars
      *
@@ -55,8 +57,18 @@ class TestContextExtension extends BaseExtension
      * @throws \Exception
      * @return void
      */
-    public function testStart()
+    public function testStart(\Codeception\Event\TestEvent $e)
     {
+        $this->currentTest = $e->getTest()->getMetadata()->getName();
+
+        $cURLConnection = curl_init();
+        curl_setopt_array($cURLConnection, [
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_URL => getenv('MAGENTO_BASE_URL') . "/test.php?test=" . $this->currentTest,
+        ]);
+
+        $success = curl_exec($cURLConnection);
+        curl_close($cURLConnection);
         PersistedObjectHandler::getInstance()->clearHookObjects();
         PersistedObjectHandler::getInstance()->clearTestObjects();
     }
